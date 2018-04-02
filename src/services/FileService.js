@@ -1,3 +1,4 @@
+const { groupBy, flatten } = require('../util/ArrayUtils');
 const {
   lstat,
   ensureDir,
@@ -6,13 +7,11 @@ const {
   ensureFile,
   move,
 } = require('fs-extra');
-const { filterAsync } = require('../util/AsyncUtils');
-const { groupBy } = require('../util/ArrayUtils');
 
 const separatorRegex = /[/|\\]/;
 const extensionRegex = /[.]/;
 
-const isDirectory = async (path) => {
+const isDirectoryByPath = async (path) => {
   const stat = await lstat(path);
   return stat.isDirectory();
 };
@@ -36,38 +35,44 @@ exports.stat = async (path) => {
   };
 };
 
-exports.move = async (srcPath, targetPath) => {
-  return move(srcPath, targetPath);
-}
+exports.move = (srcPath, targetPath) => move(srcPath, targetPath);
 
-exports.listDirectories = async (path, recursive = false) => {
-  const filesAndDirs = await exports.listFilesAndDirectories(path, recursive);
-  const { true: directories = []} = groupBy(filesAndDirs, 'isDirectory');
+exports.listDirectories = async (path, opts = { recursive: false, skipCheck: false }) => {
+  const filesAndDirs = await exports.listFilesAndDirectories(path, opts);
+  const { true: directories = [] } = groupBy(filesAndDirs, 'isDirectory');
   return directories;
-}
+};
 
 exports.createFile = path => ensureFile(path);
 exports.createDirectory = path => ensureDir(path);
 exports.deleteDirectory = path => remove(path);
 
-exports.listFilesAndDirectories = async (path, recursive = false, skipCheck = false) => {
+exports.listFilesAndDirectories = async (path, opts = {}) => {
+  const { recursive = false, skipCheck = false } = opts;
+
+  // If this was a recursive call, we probably already checked the parent directory
   if (!skipCheck) {
-    const bIsDirectory = await isDirectory(path);
+    const bIsDirectory = await isDirectoryByPath(path);
     if (!bIsDirectory) throw new Error(`${path} is not a directory`);
   }
 
   const contents = await readdir(path);
   const filesAndDirs = await Promise.all(contents.map(name => exports.stat(`${path}/${name}`)));
-  console.log(path, filesAndDirs);
   if (!recursive) return filesAndDirs;
-  const directories = filesAndDirs.filter(({ isDirectory }) => isDirectory);
-  const children = await Promise.all(directories.map(({ path }) => exports.listFilesAndDirectories(path, recursive, true)));
-  console.log(path, children)
-  return [...filesAndDirs, ...children];
-}
 
-exports.listFiles = async (path, recursive = false) => {
-  const filesAndDirs = await exports.listFilesAndDirectories(path, recursive);
-  const { false: files = []} = groupBy(filesAndDirs, 'isDirectory');
+  // If recursive, crawl the dirs!
+  const dirs = filesAndDirs.filter(({ isDirectory }) => isDirectory);
+  const children = await Promise
+    .all(dirs.map(f => exports.listFilesAndDirectories(f.path, { recursive, skipCheck: true })));
+
+  return [...filesAndDirs, ...flatten(children)];
+};
+
+exports.listFiles = async (path, opts = { recursive: false }) => {
+  const filesAndDirs = await exports.listFilesAndDirectories(path, opts);
+  const { false: files = [] } = groupBy(filesAndDirs, 'isDirectory');
   return files;
-}
+};
+
+exports.listFilesRecursive = (path, opts = {}) =>
+  exports.listFiles(path, Object.assign(opts, { recursive: true }));

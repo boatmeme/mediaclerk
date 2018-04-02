@@ -61,7 +61,7 @@ describe('FileService', () => {
     });
   });
 
-  describe('listFiles (Recursive)', () => {
+  describe('listFilesRecursive', () => {
     const localDir = `${home}/recursive`;
 
     before(async () => {
@@ -69,12 +69,13 @@ describe('FileService', () => {
       await FileService.createFile(`${localDir}/02.png`);
       await FileService.createFile(`${localDir}/03/04.png`);
       await FileService.createFile(`${localDir}/05/06/07.png`);
+      await FileService.createDirectory(`${localDir}/05/08/09`);
     });
     after(async () => {
       await FileService.deleteDirectory(`${localDir}`);
     });
     it('should list all files in an entire directory structure', async () => {
-      const files = await FileService.listFiles(localDir, true);
+      const files = await FileService.listFilesRecursive(localDir);
       files.should.be.an.Array().of.length(4);
     });
   });
