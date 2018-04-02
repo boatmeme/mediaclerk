@@ -1,0 +1,38 @@
+{
+  "name": "mediaclerk",
+  "version": "0.0.1",
+  "description": "A node application for sorting, separating, and filing media files and running as a cron-job",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha ./test --recursive",
+    "start": "node index.js",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boatmeme/mediaclerk.git"
+  },
+  "keywords": [
+    "media",
+    "filing",
+    "cron",
+    "sorting"
+  ],
+  "author": "Jonathan Griggs <jonathan.griggs@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/boatmeme/mediaclerk/issues"
+  },
+  "homepage": "https://github.com/boatmeme/mediaclerk#readme",
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0",
+    "mocha": "^5.0.5",
+    "should": "^13.2.1"
+  },
+  "dependencies": {
+    "fs-extra": "^5.0.0",
+    "prolly": "^0.3.0"
+  }
+}
