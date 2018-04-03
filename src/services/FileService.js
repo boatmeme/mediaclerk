@@ -20,14 +20,14 @@ exports.stat = async (path) => {
   const stat = await lstat(path);
   const isDirectory = stat.isDirectory();
   const { ctime, mtime, size } = stat;
-  const [filename, parentDir] = path.split(separatorRegex).reverse();
+  const [filename, ...parents] = path.split(separatorRegex).reverse();
   const [name, extension = ''] = filename.split(extensionRegex);
   return {
     path,
     filename,
     name,
     extension: extension.toLowerCase(),
-    parentDir,
+    parentDir: (parents || []).reverse().join('/'),
     ctime,
     mtime,
     size,
