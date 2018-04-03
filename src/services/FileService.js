@@ -6,6 +6,7 @@ const {
   readdir,
   ensureFile,
   move,
+  copy,
 } = require('fs-extra');
 
 const separatorRegex = /[/|\\]/;
@@ -35,7 +36,8 @@ exports.stat = async (path) => {
   };
 };
 
-exports.move = (srcPath, targetPath) => move(srcPath, targetPath);
+exports.move = move;
+exports.copy = copy;
 
 exports.listDirectories = async (path, opts = { recursive: false, skipCheck: false }) => {
   const filesAndDirs = await exports.listFilesAndDirectories(path, opts);
@@ -43,9 +45,9 @@ exports.listDirectories = async (path, opts = { recursive: false, skipCheck: fal
   return directories;
 };
 
-exports.createFile = path => ensureFile(path);
-exports.createDirectory = path => ensureDir(path);
-exports.deleteDirectory = path => remove(path);
+exports.createFile = ensureFile;
+exports.createDirectory = ensureDir;
+exports.deleteDirectory = remove;
 
 exports.listFilesAndDirectories = async (path, opts = {}) => {
   const { recursive = false, skipCheck = false } = opts;
@@ -73,6 +75,9 @@ exports.listFiles = async (path, opts = { recursive: false }) => {
   const { false: files = [] } = groupBy(filesAndDirs, 'isDirectory');
   return files;
 };
+
+exports.listDirectoriesRecursive = (path, opts = {}) =>
+  exports.listDirectories(path, Object.assign(opts, { recursive: true }));
 
 exports.listFilesRecursive = (path, opts = {}) =>
   exports.listFiles(path, Object.assign(opts, { recursive: true }));
