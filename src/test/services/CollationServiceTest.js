@@ -69,7 +69,7 @@ describe('CollationService', () => {
 
   describe('collate', () => {
     const srcDir = `${home}/sort`;
-    const targetDir = `${home}/file`;
+    const targetDir = `${home}/collated`;
 
     beforeEach(async () => {
       await FileService.createFile(`${srcDir}/01.mp4`);
@@ -81,6 +81,9 @@ describe('CollationService', () => {
       await FileService.createFile(`${srcDir}/05/06/07.jpg`);
       await FileService.createFile(`${srcDir}/05/07/10.mp4`);
       await FileService.createDirectory(`${srcDir}/05/08/09`);
+      await FileService.createFile(`${srcDir}/png/1.arf`);
+      await FileService.createFile(`${srcDir}/png/2.arf`);
+      await FileService.createFile(`${srcDir}/png/3.arf`);
     });
     afterEach(async () => {
       await FileService.deleteDirectory(srcDir);
@@ -130,6 +133,56 @@ describe('CollationService', () => {
       remainingFiles.should.be.an.Array().of.length(3);
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
       newFiles.should.be.an.Array().of.length(3);
+    });
+
+    it('should collate with custom filters', async () => {
+      const opts = {
+        recursive: true,
+        cleanDirs: true,
+        sourceFilter: ({ extension }) => extension === 'arf',
+      };
+      const files = await CollationService.collate(`${srcDir}`, targetDir, opts);
+      files.should.be.an.Array().of.length(3);
+      const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}`);
+      remainingDirs.should.be.an.Array().of.length(8);
+      const remainingFiles = await FileService.listFilesRecursive(`${srcDir}`);
+      remainingFiles.should.be.an.Array().of.length(7);
+      const newDirs = await FileService.listDirectoriesRecursive(`${targetDir}`);
+      newDirs.should.be.an.Array().of.length(1);
+      const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
+      newFiles.should.be.an.Array().of.length(3);
+    });
+
+    it('should collate with custom collation function', async () => {
+      const opts = {
+        recursive: true,
+        cleanDirs: true,
+        sourceFilter: ({ extension }) => extension === 'arf',
+        collateFn: ({ name, filename }) => `${name}/${filename}`,
+      };
+      const files = await CollationService.collate(`${srcDir}`, targetDir, opts);
+      files.should.be.an.Array().of.length(3);
+      const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}`);
+      remainingDirs.should.be.an.Array().of.length(8);
+      const remainingFiles = await FileService.listFilesRecursive(`${srcDir}`);
+      remainingFiles.should.be.an.Array().of.length(7);
+      const newDirs = await FileService.listDirectoriesRecursive(`${targetDir}`);
+      newDirs.should.be.an.Array().of.length(3);
+      const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
+      newFiles.should.be.an.Array().of.length(3);
+    });
+
+    it('should simulate collation w/dry run param', async () => {
+      await FileService.createDirectory(targetDir);
+      const opts = { recursive: true, cleanDirs: true, dryRun: true };
+      const files = await CollationService.collate(`${srcDir}/05`, targetDir, opts);
+      files.should.be.an.Array().of.length(3);
+      const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
+      remainingDirs.should.be.an.Array().of.length(4);
+      const remainingFiles = await FileService.listFilesRecursive(`${srcDir}/05`);
+      remainingFiles.should.be.an.Array().of.length(3);
+      const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
+      newFiles.should.be.an.Array().of.length(0);
     });
   });
 });

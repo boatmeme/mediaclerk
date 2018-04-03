@@ -34,11 +34,14 @@ exports.getCopyPairs = async (sourcePath, targetPath, opts = {}) => {
 };
 
 exports.collate = async (sourcePath, targetPath, opts = {}) => {
-  const defaults = { copy: false, cleanDirs: true };
+  const defaults = { copy: false, cleanDirs: true, dryRun: false };
   const options = Object.assign({}, defaults, opts);
 
   const pairs = await exports.getCopyPairs(sourcePath, targetPath, options);
   const results = await mapSequence(pairs, async ([srcFile, target]) => {
+    if (options.dryRun) {
+      return { src: srcFile.path, target, op: (options.copy ? 'copy' : 'move') };
+    }
     const fileOp = options.copy ? File.copy : File.move;
     await fileOp.call(this, srcFile.path, target);
 
