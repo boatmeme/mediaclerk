@@ -1,6 +1,6 @@
 require('should');
-const FileService = require('../../services/FileService');
-const CollationService = require('../../services/CollationService');
+const FileService = require('../../lib/services/FileService');
+const CollationService = require('../../lib/services/CollationService');
 
 describe('CollationService', () => {
   const home = './test/fixtures';
