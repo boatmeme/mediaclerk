@@ -83,13 +83,14 @@ describe('FileService', () => {
   describe('move', () => {
     const localDir = `${home}/move/src`;
     const targetDir = `${home}/move/target`;
-    before(async () => {
+    beforeEach(async () => {
       await FileService.createFile(`${localDir}/01.mp4`);
       await FileService.createFile(`${localDir}/02.png`);
       await FileService.createFile(`${localDir}/03/03.png`);
     });
-    after(async () => {
+    afterEach(async () => {
       await FileService.deleteDirectory(`${localDir}`);
+      await FileService.deleteDirectory(`${targetDir}`);
     });
     it('should move files or paths from the source path to the target path', async () => {
       let files = await FileService.listFilesAndDirectories(localDir);
@@ -100,6 +101,25 @@ describe('FileService', () => {
       }));
       files = await FileService.listFilesAndDirectories(localDir);
       files.should.be.an.Array().of.length(0);
+      files = await FileService.listFilesAndDirectories(targetDir);
+      files.should.be.an.Array().of.length(3);
+    });
+
+    it('should not overwrite by default', async () => {
+      await FileService.createFile(`${targetDir}/02.png`);
+
+      let files = await FileService.listFilesAndDirectories(localDir);
+      files.should.be.an.Array().of.length(3);
+      await Promise.all(files.map(async ({ filename, path }) => {
+        const target = `${targetDir}/${filename}`;
+        try {
+          await FileService.move(path, target);
+        } catch (err) {
+          err.should.be.ok();
+        }
+      }));
+      files = await FileService.listFilesAndDirectories(localDir);
+      files.should.be.an.Array().of.length(1);
       files = await FileService.listFilesAndDirectories(targetDir);
       files.should.be.an.Array().of.length(3);
     });
