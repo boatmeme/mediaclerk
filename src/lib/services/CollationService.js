@@ -17,15 +17,11 @@ const separatorRegex = /\//;
 const buildTargetFile = (collateFn, file, sourcePath, targetPath, opts) => {
   const generatedPath = collateFn.call(this, file, sourcePath, targetPath, opts);
   const newPath = `${targetPath}/${generatedPath.replace(leadingSeparatorRegex, '')}`;
-  const [newFilename, ...newParents] = newPath.split(separatorRegex).reverse();
-  const [name, extension = ''] = newFilename.split('.');
+  const filenameInfo = File.getFilenameInfo(newPath);
 
   return Object.assign({}, file, {
     path: newPath,
-    parentDir: newParents.reverse().join('/'),
-    filename: newFilename,
-    name,
-    extension,
+    ...filenameInfo,
   });
 };
 
@@ -61,6 +57,7 @@ exports.collate = async (sourcePath, targetPath, opts = {}) => {
       target: targetFile.path,
       op: (options.copy ? 'copy' : 'move'),
       success: true,
+      size: srcFile.size,
     };
 
     if (options.dryRun) return result;

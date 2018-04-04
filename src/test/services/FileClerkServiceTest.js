@@ -136,6 +136,8 @@ describe('FileClerkService', () => {
       await FileService.createFile(`${srcDir}/03/04.png`);
       await FileService.createFile(`${srcDir}/03/sub/another.mp4`);
       await FileService.createDirectory(`${srcDir}/03/sub/donotfind.dir`);
+      await FileService.createFile(`${srcDir}/05/06/a.rose.by.any.other.name`);
+      await FileService.createFile(`${srcDir}/05/06/no_extension`);
       await FileService.createFile(`${srcDir}/05/06/07.png`);
       await FileService.createFile(`${srcDir}/05/06/07.jpg`);
       await FileService.createFile(`${srcDir}/05/07/10.mp4`);
@@ -155,15 +157,15 @@ describe('FileClerkService', () => {
         extensions: ['jpg', 'png', ''],
       };
       const files = await FileClerk.organizeByExtension(srcDir, targetDir, opts);
-      files.should.be.an.Array().of.length(5);
+      files.should.be.an.Array().of.length(6);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
-      remainingDirs.should.be.an.Array().of.length(8);
+      remainingDirs.should.be.an.Array().of.length(9);
       const remainingFiles = await FileService.listFilesRecursive(srcDir);
-      remainingFiles.should.be.an.Array().of.length(6);
+      remainingFiles.should.be.an.Array().of.length(7);
       const newDirs = await FileService.listDirectoriesRecursive(targetDir);
       newDirs.should.be.an.Array().of.length(3);
       const newFiles = await FileService.listFilesRecursive(targetDir);
-      newFiles.should.be.an.Array().of.length(5);
+      newFiles.should.be.an.Array().of.length(6);
     });
   });
 

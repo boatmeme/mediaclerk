@@ -77,6 +77,8 @@ describe('CollationService', () => {
       await FileService.createFile(`${srcDir}/03/04.png`);
       await FileService.createFile(`${srcDir}/03/sub/another.mp4`);
       await FileService.createDirectory(`${srcDir}/03/sub/donotfind.dir`);
+      await FileService.createFile(`${srcDir}/05/06/a.rose.by.any.other.name.png`);
+      await FileService.createFile(`${srcDir}/05/06/no_extension`);
       await FileService.createFile(`${srcDir}/05/06/07.png`);
       await FileService.createFile(`${srcDir}/05/06/07.jpg`);
       await FileService.createFile(`${srcDir}/05/07/10.mp4`);
@@ -92,7 +94,7 @@ describe('CollationService', () => {
 
     it('should move directories by default', async () => {
       const files = await CollationService.collate(`${srcDir}/05/06`, targetDir);
-      files.should.be.an.Array().of.length(2);
+      files.should.be.an.Array().of.length(4);
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
       remainingDirs.should.be.an.Array().of.length(4);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}/05`);
@@ -102,12 +104,16 @@ describe('CollationService', () => {
     it('should move directories but not overwrite, and rename by default', async () => {
       await FileService.createFile(`${targetDir}/07.png`);
       await FileService.createFile(`${srcDir}/05/06/08.png`);
+      await FileService.createFile(`${targetDir}/a.rose.by.any.other.name.png`);
+      await FileService.createFile(`${targetDir}/no_extension`);
 
       const files = await CollationService.collate(`${srcDir}/05/06`, targetDir);
-      files.should.be.an.Array().of.length(3);
+      files.should.be.an.Array().of.length(5);
 
-      files[1].should.be.an.Object().has.property('success').eql(true);
-      files[1].should.be.an.Object().not.has.property('error');
+      files.forEach((f) => {
+        f.should.be.an.Object().has.property('success').eql(true);
+        f.should.be.an.Object().not.has.property('error');
+      });
 
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
       remainingDirs.should.be.an.Array().of.length(4);
@@ -118,22 +124,27 @@ describe('CollationService', () => {
     it('should move directories but not overwrite, and fail if rename disabled', async () => {
       await FileService.createFile(`${targetDir}/07.png`);
       await FileService.createFile(`${srcDir}/05/06/08.png`);
+      await FileService.createFile(`${targetDir}/a.rose.by.any.other.name.png`);
+      await FileService.createFile(`${targetDir}/no_extension`);
 
       const opts = {
         rename: false,
       };
 
       const files = await CollationService.collate(`${srcDir}/05/06`, targetDir, opts);
-      files.should.be.an.Array().of.length(3);
-
+      files.should.be.an.Array().of.length(5);
 
       files[1].should.be.an.Object().has.property('success').eql(false);
       files[1].should.be.an.Object().has.property('error').of.type('string');
+      files[3].should.be.an.Object().has.property('success').eql(false);
+      files[3].should.be.an.Object().has.property('error').of.type('string');
+      files[4].should.be.an.Object().has.property('success').eql(false);
+      files[4].should.be.an.Object().has.property('error').of.type('string');
 
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
       remainingDirs.should.be.an.Array().of.length(4);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}/05`);
-      remainingFiles.should.be.an.Array().of.length(2);
+      remainingFiles.should.be.an.Array().of.length(4);
     });
 
     it('should move directories and, optionally, overwrite', async () => {
@@ -145,7 +156,7 @@ describe('CollationService', () => {
       };
 
       const files = await CollationService.collate(`${srcDir}/05/06`, targetDir, opts);
-      files.should.be.an.Array().of.length(3);
+      files.should.be.an.Array().of.length(5);
 
       files[1].should.be.an.Object().has.property('success').eql(true);
       files[1].should.be.an.Object().not.has.property('error');
@@ -159,37 +170,37 @@ describe('CollationService', () => {
     it('should move and clean directories recursively (but not the source directory, or directories that were untouched)', async () => {
       const opts = { recursive: true };
       const files = await CollationService.collate(`${srcDir}/05`, targetDir, opts);
-      files.should.be.an.Array().of.length(3);
+      files.should.be.an.Array().of.length(5);
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
       remainingDirs.should.be.an.Array().of.length(2);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}/05`);
       remainingFiles.should.be.an.Array().of.length(0);
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
-      newFiles.should.be.an.Array().of.length(3);
+      newFiles.should.be.an.Array().of.length(5);
     });
 
     it('should move and NOT clean directories', async () => {
       const opts = { recursive: true, cleanDirs: false };
       const files = await CollationService.collate(`${srcDir}/05`, targetDir, opts);
-      files.should.be.an.Array().of.length(3);
+      files.should.be.an.Array().of.length(5);
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
       remainingDirs.should.be.an.Array().of.length(4);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}/05`);
       remainingFiles.should.be.an.Array().of.length(0);
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
-      newFiles.should.be.an.Array().of.length(3);
+      newFiles.should.be.an.Array().of.length(5);
     });
 
     it('should copy and NOT clean directories', async () => {
       const opts = { copy: true, recursive: true, cleanDirs: true };
       const files = await CollationService.collate(`${srcDir}/05`, targetDir, opts);
-      files.should.be.an.Array().of.length(3);
+      files.should.be.an.Array().of.length(5);
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
       remainingDirs.should.be.an.Array().of.length(4);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}/05`);
-      remainingFiles.should.be.an.Array().of.length(3);
+      remainingFiles.should.be.an.Array().of.length(5);
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
-      newFiles.should.be.an.Array().of.length(3);
+      newFiles.should.be.an.Array().of.length(5);
     });
 
     it('should collate with custom filters', async () => {
@@ -203,7 +214,7 @@ describe('CollationService', () => {
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}`);
       remainingDirs.should.be.an.Array().of.length(8);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}`);
-      remainingFiles.should.be.an.Array().of.length(7);
+      remainingFiles.should.be.an.Array().of.length(9);
       const newDirs = await FileService.listDirectoriesRecursive(`${targetDir}`);
       newDirs.should.be.an.Array().of.length(1);
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
@@ -222,7 +233,7 @@ describe('CollationService', () => {
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}`);
       remainingDirs.should.be.an.Array().of.length(8);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}`);
-      remainingFiles.should.be.an.Array().of.length(7);
+      remainingFiles.should.be.an.Array().of.length(9);
       const newDirs = await FileService.listDirectoriesRecursive(`${targetDir}`);
       newDirs.should.be.an.Array().of.length(3);
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
@@ -233,11 +244,11 @@ describe('CollationService', () => {
       await FileService.createDirectory(targetDir);
       const opts = { recursive: true, cleanDirs: true, dryRun: true };
       const files = await CollationService.collate(`${srcDir}/05`, targetDir, opts);
-      files.should.be.an.Array().of.length(3);
+      files.should.be.an.Array().of.length(5);
       const remainingDirs = await FileService.listDirectoriesRecursive(`${srcDir}/05`);
       remainingDirs.should.be.an.Array().of.length(4);
       const remainingFiles = await FileService.listFilesRecursive(`${srcDir}/05`);
-      remainingFiles.should.be.an.Array().of.length(3);
+      remainingFiles.should.be.an.Array().of.length(5);
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
       newFiles.should.be.an.Array().of.length(0);
     });

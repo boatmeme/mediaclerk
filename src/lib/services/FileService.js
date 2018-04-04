@@ -1,4 +1,4 @@
-const { groupBy, flatten } = require('../util/ArrayUtils');
+const { groupBy, flatten, isEmpty } = require('../util/ArrayUtils');
 const {
   lstat,
   ensureDir,
@@ -10,25 +10,34 @@ const {
 } = require('fs-extra');
 
 const separatorRegex = /[/|\\]/;
-const extensionRegex = /[.]/;
+const extensionRegex = /\./;
 
 const isDirectoryByPath = async (path) => {
   const stat = await lstat(path);
   return stat.isDirectory();
 };
 
+exports.getFilenameInfo = (path) => {
+  const [filename, ...parents] = path.split(separatorRegex).reverse();
+  const [extension = '', ...nameParts] = filename.split(extensionRegex).reverse();
+  const name = isEmpty(nameParts) ? extension : nameParts.reverse().join('.');
+  return {
+    filename,
+    name,
+    extension: isEmpty(nameParts) ? '' : extension.toLowerCase(),
+    parentDir: (parents || []).reverse().join('/'),
+  };
+};
+
 exports.stat = async (path) => {
   const stat = await lstat(path);
   const isDirectory = stat.isDirectory();
   const { ctime, mtime, size } = stat;
-  const [filename, ...parents] = path.split(separatorRegex).reverse();
-  const [name, extension = ''] = filename.split(extensionRegex);
+  const filenameInfo = exports.getFilenameInfo(path);
+
   return {
     path,
-    filename,
-    name,
-    extension: extension.toLowerCase(),
-    parentDir: (parents || []).reverse().join('/'),
+    ...filenameInfo,
     ctime,
     mtime,
     size,
