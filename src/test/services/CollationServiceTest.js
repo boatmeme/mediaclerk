@@ -184,5 +184,18 @@ describe('CollationService', () => {
       const newFiles = await FileService.listFilesRecursive(`${targetDir}`);
       newFiles.should.be.an.Array().of.length(0);
     });
+    /*
+    it.only('should simulate collation w/dry run param', async () => {
+      const opts = {
+        recursive: true,
+        cleanDirs: true,
+        dryRun: true,
+        sourceFilter: ({ extension }) => extension === 'jpg',
+        collateFn: ({ filename }) => `${filename}`,
+      };
+      const results = await CollationService.collate('/mnt/g/Pictures/INCOMING', targetDir, opts);
+      console.log(results);
+    }).timeout(400000);
+    */
   });
 });

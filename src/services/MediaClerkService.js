@@ -34,6 +34,39 @@ exports.organizeByDate = (sourcePath, targetPath, opts = {}) => {
       f.filename,
     ].join('/');
   };
+
+  const options = Object.assign({}, opts, { collateFn });
+  return exports.organize(sourcePath, targetPath, options);
+};
+
+exports.organizeByExtension = (sourcePath, targetPath, opts = {}) => {
+  const {
+    noExtensionDir = 'any',
+  } = opts;
+
+  const collateFn = ({ extension = noExtensionDir, filename }) =>
+    (isEmpty(extension)
+      ? `${noExtensionDir}/${filename}`
+      : `${extension}/${filename}`);
+
+  const options = Object.assign({}, opts, { collateFn });
+  return exports.organize(sourcePath, targetPath, options);
+};
+
+const alphaNumRegex = /([0-9A-Za-z])/;
+exports.organizeByAlphabetical = (sourcePath, targetPath, opts = {}) => {
+  const {
+    upperCase = false,
+    symbolDir = '0',
+  } = opts;
+
+  const collateFn = ({ name, filename }) => {
+    const matches = name.match(alphaNumRegex) || [];
+    const [firstChar = symbolDir] = matches;
+    const dirName = upperCase ? firstChar.toUpperCase() : firstChar.toLowerCase();
+    return `/${dirName}/${filename}`;
+  };
+
   const options = Object.assign({}, opts, { collateFn });
   return exports.organize(sourcePath, targetPath, options);
 };
