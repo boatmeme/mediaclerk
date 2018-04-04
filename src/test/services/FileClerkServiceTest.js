@@ -1,8 +1,8 @@
 require('should');
 const FileService = require('../../services/FileService');
-const MediaClerk = require('../../services/MediaClerkService');
+const FileClerk = require('../../services/FileClerkService');
 
-describe('MediaClerkService', () => {
+describe('FileClerkService', () => {
   const home = './test/fixtures';
 
   before(async () => {
@@ -39,7 +39,7 @@ describe('MediaClerkService', () => {
       const opts = {
         extensions: ['jpg', 'png'],
       };
-      const files = await MediaClerk.organize(srcDir, targetDir, opts);
+      const files = await FileClerk.organize(srcDir, targetDir, opts);
       files.should.be.an.Array().of.length(4);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
       remainingDirs.should.be.an.Array().of.length(8);
@@ -58,7 +58,7 @@ describe('MediaClerkService', () => {
         dryRun: true,
       };
 
-      const files = await MediaClerk.organize(srcDir, targetDir, opts);
+      const files = await FileClerk.organize(srcDir, targetDir, opts);
       files.should.be.an.Array().of.length(4);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
       remainingDirs.should.be.an.Array().of.length(9);
@@ -96,7 +96,7 @@ describe('MediaClerkService', () => {
       const opts = {
         extensions: ['jpg', 'png'],
       };
-      const files = await MediaClerk.organizeByDate(srcDir, targetDir, opts);
+      const files = await FileClerk.organizeByDate(srcDir, targetDir, opts);
       files.should.be.an.Array().of.length(4);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
       remainingDirs.should.be.an.Array().of.length(8);
@@ -113,7 +113,7 @@ describe('MediaClerkService', () => {
         extensions: ['jpg', 'png'],
         dateFormat: ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'],
       };
-      const files = await MediaClerk.organizeByDate(srcDir, targetDir, opts);
+      const files = await FileClerk.organizeByDate(srcDir, targetDir, opts);
       files.should.be.an.Array().of.length(4);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
       remainingDirs.should.be.an.Array().of.length(8);
@@ -154,7 +154,7 @@ describe('MediaClerkService', () => {
       const opts = {
         extensions: ['jpg', 'png', ''],
       };
-      const files = await MediaClerk.organizeByExtension(srcDir, targetDir, opts);
+      const files = await FileClerk.organizeByExtension(srcDir, targetDir, opts);
       files.should.be.an.Array().of.length(5);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
       remainingDirs.should.be.an.Array().of.length(8);
@@ -194,7 +194,7 @@ describe('MediaClerkService', () => {
       const opts = {
         extensions: ['jpg', 'png', 'mp4'],
       };
-      const files = await MediaClerk.organizeByAlphabetical(srcDir, targetDir, opts);
+      const files = await FileClerk.organizeByAlphabetical(srcDir, targetDir, opts);
       files.should.be.an.Array().of.length(7);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
       remainingDirs.should.be.an.Array().of.length(4);
@@ -212,7 +212,7 @@ describe('MediaClerkService', () => {
         upperCase: true,
         symbolDir: '#',
       };
-      const files = await MediaClerk.organizeByAlphabetical(srcDir, targetDir, opts);
+      const files = await FileClerk.organizeByAlphabetical(srcDir, targetDir, opts);
       files.should.be.an.Array().of.length(7);
       const remainingDirs = await FileService.listDirectoriesRecursive(srcDir);
       remainingDirs.should.be.an.Array().of.length(4);
