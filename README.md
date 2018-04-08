@@ -1,2 +1,3 @@
-# mediaclerk
-An application for sorting, separating, and filing media files
+# (⊙_☉) mediaclerk
+
+A Node.js library for sorting, separating, and organizing media files
