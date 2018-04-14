@@ -1,8 +1,9 @@
 const moment = require('moment');
+const fs = require('fs');
 const prettyBytes = require('pretty-bytes');
 const { toString: prettyCron } = require('prettycron');
 const { instance: cron } = require('./CronService');
-const { compact } = require('../util/ArrayUtils');
+const { compact, isEmpty } = require('../util/ArrayUtils');
 const imageExtensions = require('image-extensions');
 const videoExtensions = require('video-extensions');
 const {
@@ -123,12 +124,15 @@ const cronsFromConfig = (config, opts = {}) => {
         targetExists: 0,
       });
 
-      // eslint-disable-next-line
-      console.log(`[${getTime()}] Finished '${name}' [${sourcePath} -> ${targetPath}]
+      const message = `[${getTime()}] Finished '${name}' [${sourcePath} -> ${targetPath}]
     duration ${getDuration(Date.now() - start)} seconds
    processed ${result.length} files (${prettyBytes(report.size)})
              ${report.success} success / ${report.error} errors
-             ${report.targetExists} target exists`);
+             ${report.targetExists} target exists`;
+      // eslint-disable-next-line
+      if (!isEmpty(process.env.LOG_PATH)) {
+        fs.writeFileSync(`${process.env.LOG_PATH}/${name}-${start}.json`, `${message}\n${JSON.stringify(result, null, 2)}`);
+      }
       return result;
     }, null, opts);
   });
