@@ -130,6 +130,7 @@ const cronsFromConfig = (config, opts = {}) => {
              ${report.success} success / ${report.error} errors
              ${report.targetExists} target exists`;
       // eslint-disable-next-line
+      console.log(message);
       if (!isEmpty(process.env.LOG_PATH)) {
         fs.writeFileSync(`${process.env.LOG_PATH}/${name}-${start}.json`, `${message}\n${JSON.stringify(result, null, 2)}`);
       }
