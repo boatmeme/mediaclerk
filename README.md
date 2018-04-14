@@ -1,4 +1,6 @@
 # (⊙_☉) mediaclerk
+[![Docker Build Statu](https://img.shields.io/docker/build/boatmeme/mediaclerk.svg?style=flat-square)](https://hub.docker.com/r/boatmeme/mediaclerk/) [![license](https://img.shields.io/github/license/boatmeme/mediaclerk.svg?style=flat-square)](https://github.com/boatmeme/mediaclerk/blob/master/LICENSE)
+[![Beerpay](https://beerpay.io/boatmeme/mediaclerk/make-wish.svg?style=flat-square)](https://beerpay.io/boatmeme/mediaclerk?focus=wish)
 
 A Docker Image for running scheduled media / file collation jobs.
 
