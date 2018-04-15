@@ -413,9 +413,9 @@ file-entry-cache@^2.0.0:
     flat-cache "^1.2.1"
     object-assign "^4.0.1"
 
-fileclerk@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/fileclerk/-/fileclerk-1.2.0.tgz#30934a704a5ab838aaf1bac611ab280d66117fa4"
+fileclerk@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/fileclerk/-/fileclerk-1.2.1.tgz#477cf362cfbb53ef7163297666a6d288682c0cd7"
   dependencies:
     fs-extra "^5.0.0"
     lodash.compact "^3.0.1"
